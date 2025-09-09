@@ -1,33 +1,22 @@
-# Multi-stage build for MMA Coach Assistant
-# Stage 1: Build the application
-FROM node:18-alpine AS builder
-
-# Set working directory
+# ---- build ----
+FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Copy package files
-COPY package.json package-lock.json* ./
+# Build arguments
+ARG VITE_GEMINI_KEY
+ENV VITE_GEMINI_KEY=$VITE_GEMINI_KEY
 
 # Install dependencies
-RUN npm ci --only=production
+COPY package*.json ./
+RUN npm ci
 
-# Copy source code
+# Copy source and build
 COPY . .
-
-# Build the application
 RUN npm run build
 
-# Stage 2: Production image with Nginx
-FROM nginx:alpine AS production
-
-# Copy built application from builder stage
+# ---- serve ----
+FROM nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
-
-# Copy custom nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
-
-# Expose port 8080 (Cloud Run requirement)
 EXPOSE 8080
-
-# Start nginx
 CMD ["nginx", "-g", "daemon off;"]
