@@ -12,6 +12,27 @@ export default defineConfig(({ mode }) => {
         alias: {
           '@': path.resolve(__dirname, '.'),
         }
+      },
+      build: {
+        outDir: 'dist',
+        sourcemap: false,
+        minify: 'terser',
+        rollupOptions: {
+          output: {
+            manualChunks: {
+              vendor: ['react', 'react-dom'],
+              gemini: ['@google/genai']
+            }
+          }
+        }
+      },
+      server: {
+        port: 5173,
+        host: true
+      },
+      preview: {
+        port: 8080,
+        host: true
       }
     };
 });
