@@ -101,23 +101,41 @@ make java    # Para Java
 make csharp  # Para C#
 ```
 
-## 🚀 Deploy no Google Cloud
+## 🚀 Deploy no Google Cloud Run
 
-### Configuração do GKE
+### Opção 1: Deploy Automático (Google Cloud Shell)
 ```bash
-export PROJECT_ID=mma-coach-assistant
-export REGION=us-central1
+# 1. Abra o Google Cloud Shell
+# https://console.cloud.google.com/cloudshell
 
-# Habilitar APIs
-gcloud services enable container.googleapis.com --project=${PROJECT_ID}
+# 2. Clone o repositório
+git clone https://github.com/PauloTuppy/mma-coach-assistant-hackatoon-google.git
+cd mma-coach-assistant-hackatoon-google
 
-# Criar cluster
-gcloud container clusters create-auto mma-coach-cluster \
-  --project=${PROJECT_ID} --region=${REGION}
+# 3. Configure sua API Key do Gemini
+export GEMINI_API_KEY="sua_api_key_aqui"
 
-# Deploy
-kubectl apply -f k8s/
+# 4. Execute o deploy
+chmod +x deploy-cloudshell.sh
+./deploy-cloudshell.sh
 ```
+
+### Opção 2: Deploy Manual
+```bash
+# Configure o projeto
+gcloud config set project mma-coach-assistant
+
+# Habilite as APIs
+gcloud services enable cloudbuild.googleapis.com run.googleapis.com
+
+# Build e deploy
+gcloud builds submit --tag gcr.io/mma-coach-assistant/mma-coach-assistant
+gcloud run deploy mma-coach-assistant \
+  --image gcr.io/mma-coach-assistant/mma-coach-assistant \
+  --platform managed --region us-central1 --allow-unauthenticated
+```
+
+📖 **Guia Completo**: [CLOUD_RUN_DEPLOYMENT.md](CLOUD_RUN_DEPLOYMENT.md)
 
 ## 🎯 Funcionalidades Principais
 
