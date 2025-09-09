@@ -1,0 +1,4 @@
+/* Default styles for the app */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
