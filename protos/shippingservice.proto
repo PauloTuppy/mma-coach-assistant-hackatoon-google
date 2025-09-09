@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+package mmacoach.shippingservice;
+
+import "common.proto";
+
+option go_package = "github.com/mma-coach-assistant/shippingservice";
+
+// Shipping service - Gives shipping cost estimates based on shopping cart
+// Ships items to the given address (mock)
+// Written in Go
+
+service ShippingService {
+  // Get shipping quote for cart
+  rpc GetQuote(GetQuoteRequest) returns (GetQuoteResponse);
+  
+  // Ship order
+  rpc ShipOrder(ShipOrderRequest) returns (ShipOrderResponse);
+  
+  // Track shipment
+  rpc TrackShipment(TrackShipmentRequest) returns (TrackShipmentResponse);
+  
+  // Get shipping methods
+  rpc GetShippingMethods(mmacoach.common.Empty) returns (GetShippingMethodsResponse);
+}
+
+message GetQuoteRequest {
+  mmacoach.common.Address address = 1;
+  repeated mmacoach.common.CartItem items = 2;
+}
+
+message GetQuoteResponse {
+  mmacoach.common.Money cost_usd = 1;
+}
+
+message ShipOrderRequest {
+  mmacoach.common.Address address = 1;
+  repeated mmacoach.common.OrderItem items = 2;
+  string shipping_method_id = 3;
+}
+
+message ShipOrderResponse {
+  string tracking_id = 1;
+  string estimated_delivery_date = 2;
+  mmacoach.common.Money shipping_cost = 3;
+}
+
+message TrackShipmentRequest {
+  string tracking_id = 1;
+}
+
+message TrackShipmentResponse {
+  string tracking_id = 1;
+  ShipmentStatus status = 2;
+  string current_location = 3;
+  string estimated_delivery_date = 4;
+  repeated ShipmentEvent events = 5;
+}
+
+message ShipmentEvent {
+  int64 timestamp = 1;
+  string location = 2;
+  string description = 3;
+  ShipmentStatus status = 4;
+}
+
+enum ShipmentStatus {
+  SHIPMENT_STATUS_UNKNOWN = 0;
+  SHIPMENT_STATUS_PENDING = 1;
+  SHIPMENT_STATUS_SHIPPED = 2;
+  SHIPMENT_STATUS_IN_TRANSIT = 3;
+  SHIPMENT_STATUS_OUT_FOR_DELIVERY = 4;
+  SHIPMENT_STATUS_DELIVERED = 5;
+  SHIPMENT_STATUS_EXCEPTION = 6;
+}
+
+message ShippingMethod {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  mmacoach.common.Money base_cost = 4;
+  int32 estimated_days = 5;
+}
+
+message GetShippingMethodsResponse {
+  repeated ShippingMethod shipping_methods = 1;
+}

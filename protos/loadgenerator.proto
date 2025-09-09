@@ -1,0 +1,123 @@
+syntax = "proto3";
+
+package mmacoach.loadgenerator;
+
+import "common.proto";
+
+// Load Generator service - Continuously sends requests imitating realistic user shopping flows
+// Written in Python/Locust
+
+service LoadGeneratorService {
+  // Start load test
+  rpc StartLoadTest(StartLoadTestRequest) returns (StartLoadTestResponse);
+  
+  // Stop load test
+  rpc StopLoadTest(StopLoadTestRequest) returns (StopLoadTestResponse);
+  
+  // Get load test status
+  rpc GetLoadTestStatus(GetLoadTestStatusRequest) returns (GetLoadTestStatusResponse);
+  
+  // Get load test metrics
+  rpc GetLoadTestMetrics(GetLoadTestMetricsRequest) returns (GetLoadTestMetricsResponse);
+  
+  // Configure load test scenarios
+  rpc ConfigureScenarios(ConfigureScenariosRequest) returns (ConfigureScenariosResponse);
+}
+
+message StartLoadTestRequest {
+  string test_name = 1;
+  int32 users = 2;
+  double spawn_rate = 3;
+  int32 duration_seconds = 4;
+  string target_host = 5;
+  repeated LoadTestScenario scenarios = 6;
+}
+
+message StartLoadTestResponse {
+  string test_id = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+message StopLoadTestRequest {
+  string test_id = 1;
+}
+
+message StopLoadTestResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message GetLoadTestStatusRequest {
+  string test_id = 1;
+}
+
+message GetLoadTestStatusResponse {
+  string test_id = 1;
+  LoadTestStatus status = 2;
+  int32 current_users = 3;
+  int64 total_requests = 4;
+  int64 failed_requests = 5;
+  double requests_per_second = 6;
+  double average_response_time = 7;
+}
+
+enum LoadTestStatus {
+  LOAD_TEST_STATUS_UNKNOWN = 0;
+  LOAD_TEST_STATUS_STARTING = 1;
+  LOAD_TEST_STATUS_RUNNING = 2;
+  LOAD_TEST_STATUS_STOPPING = 3;
+  LOAD_TEST_STATUS_STOPPED = 4;
+  LOAD_TEST_STATUS_FAILED = 5;
+}
+
+message GetLoadTestMetricsRequest {
+  string test_id = 1;
+}
+
+message GetLoadTestMetricsResponse {
+  string test_id = 1;
+  repeated RequestMetric request_metrics = 2;
+  LoadTestSummary summary = 3;
+}
+
+message RequestMetric {
+  string method = 1;
+  string endpoint = 2;
+  int64 request_count = 3;
+  int64 failure_count = 4;
+  double average_response_time = 5;
+  double min_response_time = 6;
+  double max_response_time = 7;
+  double requests_per_second = 8;
+}
+
+message LoadTestSummary {
+  int64 total_requests = 1;
+  int64 total_failures = 2;
+  double failure_rate = 3;
+  double average_response_time = 4;
+  double requests_per_second = 5;
+  int64 test_duration_seconds = 6;
+}
+
+message LoadTestScenario {
+  string name = 1;
+  double weight = 2;
+  repeated UserAction actions = 3;
+}
+
+message UserAction {
+  string action_type = 1; // "browse", "search", "add_to_cart", "checkout", etc.
+  map<string, string> parameters = 2;
+  int32 wait_time_seconds = 3;
+}
+
+message ConfigureScenariosRequest {
+  repeated LoadTestScenario scenarios = 1;
+}
+
+message ConfigureScenariosResponse {
+  bool success = 1;
+  string message = 2;
+}

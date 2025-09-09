@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+package mmacoach.currencyservice;
+
+import "common.proto";
+
+// Currency service - Converts one money amount to another currency
+// Uses real values fetched from European Central Bank
+// It's the highest QPS service
+// Written in Node.js
+
+service CurrencyService {
+  // Get supported currencies
+  rpc GetSupportedCurrencies(mmacoach.common.Empty) returns (GetSupportedCurrenciesResponse);
+  
+  // Convert currency
+  rpc Convert(CurrencyConversionRequest) returns (mmacoach.common.Money);
+  
+  // Get exchange rates
+  rpc GetExchangeRates(GetExchangeRatesRequest) returns (GetExchangeRatesResponse);
+}
+
+message GetSupportedCurrenciesResponse {
+  // The 3-letter currency codes defined in ISO 4217.
+  repeated string currency_codes = 1;
+}
+
+message CurrencyConversionRequest {
+  mmacoach.common.Money from = 1;
+  
+  // The 3-letter currency code defined in ISO 4217.
+  string to_code = 2;
+}
+
+message GetExchangeRatesRequest {
+  // Base currency code (3-letter ISO 4217)
+  string base_currency = 1;
+}
+
+message GetExchangeRatesResponse {
+  // Base currency code
+  string base_currency = 1;
+  
+  // Exchange rates relative to base currency
+  map<string, double> rates = 2;
+  
+  // Timestamp when rates were last updated
+  int64 last_updated = 3;
+}

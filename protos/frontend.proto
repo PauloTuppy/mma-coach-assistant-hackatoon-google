@@ -1,0 +1,119 @@
+syntax = "proto3";
+
+package mmacoach.frontend;
+
+import "common.proto";
+
+option go_package = "github.com/mma-coach-assistant/frontend";
+
+// Frontend service - Exposes HTTP server to serve the website
+// Does not require signup/login and generates session IDs for all users automatically
+
+service FrontendService {
+  // Get the home page content
+  rpc GetHomePage(GetHomePageRequest) returns (GetHomePageResponse);
+  
+  // Get the store page content
+  rpc GetStorePage(GetStorePageRequest) returns (GetStorePageResponse);
+  
+  // Get product catalog
+  rpc GetProducts(GetProductsRequest) returns (GetProductsResponse);
+  
+  // Add item to cart
+  rpc AddToCart(AddToCartRequest) returns (AddToCartResponse);
+  
+  // Get cart contents
+  rpc GetCart(GetCartRequest) returns (GetCartResponse);
+  
+  // Checkout process
+  rpc PlaceOrder(PlaceOrderRequest) returns (PlaceOrderResponse);
+  
+  // Get recommendations
+  rpc GetRecommendations(GetRecommendationsRequest) returns (GetRecommendationsResponse);
+}
+
+message GetHomePageRequest {
+  string session_id = 1;
+}
+
+message GetHomePageResponse {
+  string session_id = 1;
+  string fighter_name = 2;
+  repeated string weight_classes = 3;
+}
+
+message GetStorePageRequest {
+  string session_id = 1;
+}
+
+message GetStorePageResponse {
+  string session_id = 1;
+  repeated mmacoach.common.Product products = 2;
+  string store_name = 3;
+}
+
+message GetProductsRequest {
+  string session_id = 1;
+  string category_filter = 2;
+  string search_query = 3;
+}
+
+message GetProductsResponse {
+  repeated mmacoach.common.Product products = 1;
+}
+
+message AddToCartRequest {
+  string session_id = 1;
+  string product_id = 2;
+  int32 quantity = 3;
+}
+
+message AddToCartResponse {
+  bool success = 1;
+  string message = 2;
+  int32 cart_item_count = 3;
+}
+
+message GetCartRequest {
+  string session_id = 1;
+}
+
+message GetCartResponse {
+  repeated mmacoach.common.CartItem items = 1;
+  mmacoach.common.Money total = 2;
+}
+
+message PlaceOrderRequest {
+  string session_id = 1;
+  mmacoach.common.Address shipping_address = 2;
+  CreditCardInfo credit_card = 3;
+  string email = 4;
+}
+
+message PlaceOrderResponse {
+  mmacoach.common.OrderResult order = 1;
+}
+
+message CreditCardInfo {
+  string credit_card_number = 1;
+  int32 credit_card_cvv = 2;
+  int32 credit_card_expiration_year = 3;
+  int32 credit_card_expiration_month = 4;
+}
+
+message GetRecommendationsRequest {
+  string session_id = 1;
+  repeated string context_words = 2;
+  bytes image_data = 3;
+  string prompt = 4;
+}
+
+message GetRecommendationsResponse {
+  repeated ProductRecommendation recommendations = 1;
+}
+
+message ProductRecommendation {
+  string product_name = 1;
+  string reason = 2;
+  mmacoach.common.Product product = 3;
+}

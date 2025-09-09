@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package mmacoach.productcatalogservice;
+
+import "common.proto";
+
+option go_package = "github.com/mma-coach-assistant/productcatalogservice";
+
+// Product Catalog service - Provides list of products from JSON file
+// and ability to search products and get individual products
+// Written in Go
+
+service ProductCatalogService {
+  // Get list of all products
+  rpc ListProducts(mmacoach.common.Empty) returns (ListProductsResponse);
+  
+  // Get a specific product by ID
+  rpc GetProduct(GetProductRequest) returns (mmacoach.common.Product);
+  
+  // Search products by query
+  rpc SearchProducts(SearchProductsRequest) returns (SearchProductsResponse);
+  
+  // Get products by category
+  rpc GetProductsByCategory(GetProductsByCategoryRequest) returns (GetProductsByCategoryResponse);
+  
+  // Get featured products
+  rpc GetFeaturedProducts(GetFeaturedProductsRequest) returns (GetFeaturedProductsResponse);
+}
+
+message ListProductsResponse {
+  repeated mmacoach.common.Product products = 1;
+}
+
+message GetProductRequest {
+  string id = 1;
+}
+
+message SearchProductsRequest {
+  string query = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message SearchProductsResponse {
+  repeated mmacoach.common.Product products = 1;
+  int32 total_count = 2;
+}
+
+message GetProductsByCategoryRequest {
+  string category = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message GetProductsByCategoryResponse {
+  repeated mmacoach.common.Product products = 1;
+  int32 total_count = 2;
+}
+
+message GetFeaturedProductsRequest {
+  int32 limit = 1;
+}
+
+message GetFeaturedProductsResponse {
+  repeated mmacoach.common.Product products = 1;
+}

@@ -1,0 +1,117 @@
+syntax = "proto3";
+
+package mmacoach.adservice;
+
+import "common.proto";
+
+option java_package = "com.mmacoach.adservice";
+option java_outer_classname = "AdServiceProto";
+
+// Ad service - Provides text ads based on given context words
+// Written in Java
+
+service AdService {
+  // Get ads based on context
+  rpc GetAds(AdRequest) returns (AdResponse);
+  
+  // Create new ad
+  rpc CreateAd(CreateAdRequest) returns (CreateAdResponse);
+  
+  // Update existing ad
+  rpc UpdateAd(UpdateAdRequest) returns (UpdateAdResponse);
+  
+  // Delete ad
+  rpc DeleteAd(DeleteAdRequest) returns (mmacoach.common.Empty);
+  
+  // Get ad performance metrics
+  rpc GetAdMetrics(GetAdMetricsRequest) returns (GetAdMetricsResponse);
+}
+
+message AdRequest {
+  // List of context words to match ads against
+  repeated string context_keys = 1;
+  
+  // Maximum number of ads to return
+  int32 max_ads = 2;
+  
+  // User ID for personalization (optional)
+  string user_id = 3;
+}
+
+message AdResponse {
+  repeated Ad ads = 1;
+}
+
+message Ad {
+  // Unique identifier for the ad
+  string id = 1;
+  
+  // URL to redirect to when ad is clicked
+  string redirect_url = 2;
+  
+  // Ad text content
+  string text = 3;
+  
+  // Ad title
+  string title = 4;
+  
+  // Image URL for display ads
+  string image_url = 5;
+  
+  // Keywords this ad targets
+  repeated string keywords = 6;
+  
+  // Ad category
+  string category = 7;
+}
+
+message CreateAdRequest {
+  string title = 1;
+  string text = 2;
+  string redirect_url = 3;
+  string image_url = 4;
+  repeated string keywords = 5;
+  string category = 6;
+  mmacoach.common.Money bid_amount = 7;
+}
+
+message CreateAdResponse {
+  string ad_id = 1;
+  bool success = 2;
+  string message = 3;
+}
+
+message UpdateAdRequest {
+  string ad_id = 1;
+  string title = 2;
+  string text = 3;
+  string redirect_url = 4;
+  string image_url = 5;
+  repeated string keywords = 6;
+  string category = 7;
+  mmacoach.common.Money bid_amount = 8;
+}
+
+message UpdateAdResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message DeleteAdRequest {
+  string ad_id = 1;
+}
+
+message GetAdMetricsRequest {
+  string ad_id = 1;
+  int64 start_timestamp = 2;
+  int64 end_timestamp = 3;
+}
+
+message GetAdMetricsResponse {
+  string ad_id = 1;
+  int64 impressions = 2;
+  int64 clicks = 3;
+  double click_through_rate = 4;
+  mmacoach.common.Money total_cost = 5;
+  double average_cpc = 6;
+}

@@ -1,0 +1,85 @@
+version: '3.8'
+
+services:
+  # Protocol Buffer compiler service
+  protoc-compiler:
+    image: namely/protoc-all:1.51_1
+    volumes:
+      - .:/workspace
+      - ../generated:/generated
+    working_dir: /workspace
+    command: >
+      sh -c "
+        echo 'Compiling Protocol Buffers for all languages...' &&
+        
+        # Create output directories
+        mkdir -p /generated/{go,csharp,js,python,java} &&
+        
+        # Compile for Go
+        protoc --proto_path=. \
+          --go_out=/generated/go \
+          --go_opt=paths=source_relative \
+          --go-grpc_out=/generated/go \
+          --go-grpc_opt=paths=source_relative \
+          *.proto &&
+        
+        # Compile for C#
+        protoc --proto_path=. \
+          --csharp_out=/generated/csharp \
+          --grpc_out=/generated/csharp \
+          --plugin=protoc-gen-grpc=/usr/bin/grpc_csharp_plugin \
+          *.proto &&
+        
+        # Compile for Node.js
+        protoc --proto_path=. \
+          --js_out=import_style=commonjs:/generated/js \
+          --grpc_out=grpc_js:/generated/js \
+          *.proto &&
+        
+        # Compile for Python
+        protoc --proto_path=. \
+          --python_out=/generated/python \
+          --grpc_python_out=/generated/python \
+          *.proto &&
+        
+        # Compile for Java
+        protoc --proto_path=. \
+          --java_out=/generated/java \
+          --grpc-java_out=/generated/java \
+          *.proto &&
+        
+        echo 'Protocol Buffer compilation completed successfully!'
+      "
+
+  # Validation service
+  proto-validator:
+    image: namely/protoc-all:1.51_1
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    command: >
+      sh -c "
+        echo 'Validating Protocol Buffer files...' &&
+        for file in *.proto; do
+          echo 'Validating' \$$file'...' &&
+          protoc --proto_path=. --descriptor_set_out=/dev/null \$$file
+        done &&
+        echo 'All proto files are valid!'
+      "
+
+  # Documentation generator
+  proto-docs:
+    image: pseudomuto/protoc-gen-doc
+    volumes:
+      - .:/workspace
+      - ../docs:/docs
+    working_dir: /workspace
+    command: >
+      sh -c "
+        echo 'Generating Protocol Buffer documentation...' &&
+        protoc --proto_path=. \
+          --doc_out=/docs \
+          --doc_opt=html,index.html \
+          *.proto &&
+        echo 'Documentation generated at ../docs/index.html'
+      "

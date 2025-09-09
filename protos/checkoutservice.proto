@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package mmacoach.checkoutservice;
+
+import "common.proto";
+
+option go_package = "github.com/mma-coach-assistant/checkoutservice";
+
+// Checkout service - Retrieves user cart, prepares order and orchestrates 
+// the payment, shipping and email notification
+// Written in Go
+
+service CheckoutService {
+  // Place an order
+  rpc PlaceOrder(PlaceOrderRequest) returns (PlaceOrderResponse);
+  
+  // Get order details
+  rpc GetOrder(GetOrderRequest) returns (GetOrderResponse);
+  
+  // List user orders
+  rpc ListOrders(ListOrdersRequest) returns (ListOrdersResponse);
+  
+  // Cancel order
+  rpc CancelOrder(CancelOrderRequest) returns (CancelOrderResponse);
+}
+
+message PlaceOrderRequest {
+  string user_id = 1;
+  string user_currency = 2;
+  
+  mmacoach.common.Address address = 5;
+  string email = 6;
+  CreditCardInfo credit_card = 7;
+}
+
+message CreditCardInfo {
+  string credit_card_number = 1;
+  int32 credit_card_cvv = 2;
+  int32 credit_card_expiration_year = 3;
+  int32 credit_card_expiration_month = 4;
+}
+
+message PlaceOrderResponse {
+  mmacoach.common.OrderResult order = 1;
+}
+
+message GetOrderRequest {
+  string order_id = 1;
+  string user_id = 2;
+}
+
+message GetOrderResponse {
+  mmacoach.common.OrderResult order = 1;
+}
+
+message ListOrdersRequest {
+  string user_id = 1;
+  int32 limit = 2;
+  int32 offset = 3;
+}
+
+message ListOrdersResponse {
+  repeated mmacoach.common.OrderResult orders = 1;
+  int32 total_count = 2;
+}
+
+message CancelOrderRequest {
+  string order_id = 1;
+  string user_id = 2;
+  string reason = 3;
+}
+
+message CancelOrderResponse {
+  bool success = 1;
+  string message = 2;
+}

@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package mmacoach.emailservice;
+
+import "common.proto";
+
+// Email service - Sends users an order confirmation email (mock)
+// Written in Python
+
+service EmailService {
+  // Send order confirmation email
+  rpc SendOrderConfirmation(SendOrderConfirmationRequest) returns (mmacoach.common.Empty);
+  
+  // Send welcome email
+  rpc SendWelcomeEmail(SendWelcomeEmailRequest) returns (mmacoach.common.Empty);
+  
+  // Send promotional email
+  rpc SendPromotionalEmail(SendPromotionalEmailRequest) returns (mmacoach.common.Empty);
+  
+  // Send password reset email
+  rpc SendPasswordResetEmail(SendPasswordResetEmailRequest) returns (mmacoach.common.Empty);
+}
+
+message SendOrderConfirmationRequest {
+  string email = 1;
+  mmacoach.common.OrderResult order = 2;
+}
+
+message SendWelcomeEmailRequest {
+  string email = 1;
+  string user_name = 2;
+}
+
+message SendPromotionalEmailRequest {
+  string email = 1;
+  string user_name = 2;
+  string promotion_title = 3;
+  string promotion_description = 4;
+  string promotion_code = 5;
+  int64 expiry_timestamp = 6;
+}
+
+message SendPasswordResetEmailRequest {
+  string email = 1;
+  string reset_token = 2;
+  string reset_url = 3;
+}

@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package mmacoach.paymentservice;
+
+import "common.proto";
+
+// Payment service - Charges the given credit card info (mock) 
+// with the given amount and returns a transaction ID
+// Written in Node.js
+
+service PaymentService {
+  // Charge a credit card
+  rpc Charge(ChargeRequest) returns (ChargeResponse);
+  
+  // Validate credit card info
+  rpc ValidateCreditCard(ValidateCreditCardRequest) returns (ValidateCreditCardResponse);
+  
+  // Get payment methods
+  rpc GetPaymentMethods(mmacoach.common.Empty) returns (GetPaymentMethodsResponse);
+}
+
+message CreditCardInfo {
+  string credit_card_number = 1;
+  int32 credit_card_cvv = 2;
+  int32 credit_card_expiration_year = 3;
+  int32 credit_card_expiration_month = 4;
+}
+
+message ChargeRequest {
+  mmacoach.common.Money amount = 1;
+  CreditCardInfo credit_card = 2;
+}
+
+message ChargeResponse {
+  string transaction_id = 1;
+  bool success = 2;
+  string message = 3;
+  int64 timestamp = 4;
+}
+
+message ValidateCreditCardRequest {
+  CreditCardInfo credit_card = 1;
+}
+
+message ValidateCreditCardResponse {
+  bool is_valid = 1;
+  string error_message = 2;
+}
+
+message PaymentMethod {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  bool enabled = 4;
+}
+
+message GetPaymentMethodsResponse {
+  repeated PaymentMethod payment_methods = 1;
+}

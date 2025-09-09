@@ -1,0 +1,56 @@
+syntax = "proto3";
+
+package mmacoach.cartservice;
+
+import "common.proto";
+
+option csharp_namespace = "MmaCoach.CartService";
+
+// Cart service - Stores items in user's shopping cart in Redis and retrieves it
+// Written in C#
+
+service CartService {
+  // Add an item to the cart
+  rpc AddItem(AddItemRequest) returns (mmacoach.common.Empty);
+  
+  // Get all items in the cart
+  rpc GetCart(GetCartRequest) returns (Cart);
+  
+  // Remove an item from the cart
+  rpc RemoveItem(RemoveItemRequest) returns (mmacoach.common.Empty);
+  
+  // Update item quantity in the cart
+  rpc UpdateItemQuantity(UpdateItemQuantityRequest) returns (mmacoach.common.Empty);
+  
+  // Clear the entire cart
+  rpc EmptyCart(EmptyCartRequest) returns (mmacoach.common.Empty);
+}
+
+message AddItemRequest {
+  string user_id = 1;
+  mmacoach.common.CartItem item = 2;
+}
+
+message GetCartRequest {
+  string user_id = 1;
+}
+
+message Cart {
+  string user_id = 1;
+  repeated mmacoach.common.CartItem items = 2;
+}
+
+message RemoveItemRequest {
+  string user_id = 1;
+  string product_id = 2;
+}
+
+message UpdateItemQuantityRequest {
+  string user_id = 1;
+  string product_id = 2;
+  int32 quantity = 3;
+}
+
+message EmptyCartRequest {
+  string user_id = 1;
+}
